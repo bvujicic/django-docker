@@ -1,0 +1,51 @@
+version: '2'
+
+services:
+
+  postgres:
+    container_name: postgres
+    build: ./postgres
+    restart: always
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data/postgres/:/var/lib/postgresql/data/
+
+  django:
+    container_name: django
+    build: ./django
+    restart: always
+    expose:
+      - "8000"
+    links:
+      - postgres:postgres
+#      - redis:redis
+    depends_on:
+      - postgres
+#    volumes:
+#      - ./django/:/code
+    #env_file: .env
+    #command: /usr/local/bin/gunicorn docker_django.wsgi:application -w 2 -b :8000
+
+  nginx:
+    container_name: nginx
+    restart: always
+    build: ./nginx
+    ports:
+      - "80:80"
+#    volumes:
+#      - /www/static
+#    volumes_from:
+#      - web
+    links:
+      - django:django
+#
+
+#
+#  redis:
+#    restart: always
+#    image: redis:latest
+#    ports:
+#      - "6379:6379"
+#    volumes:
+#      - redisdata:/data
